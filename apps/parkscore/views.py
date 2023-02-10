@@ -38,7 +38,7 @@ def score(request):
         url = "http://18.177.143.210:8080/file/store/"
         upload = {'file': img}
         image_result = requests.post(url, files=upload).json()
-
+        print(image_result["image_score"])
 
         # 2. GPS
         # 전체 개수로 판정
@@ -92,8 +92,8 @@ def score(request):
             # image
             temp = []
             for k, v in image_result["image_score"].items():
-                score = score + v
-                if v < 1:  # 1 - max_distance
+                score = score + (1 - v)
+                if v > 0:
                     temp.append(k)
             cautions["image"] = temp
 
