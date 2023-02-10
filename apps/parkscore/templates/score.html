@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}주차 점수{% endblock title %}
+{% block content %}
+<section class="page-section">
+    <div class="container">
+        <div class="d-flex justify-content-center">
+            <div class="card" style="width: 40%; border: none;">
+                <img class="card-img-top img-responsive p-2" src="" id="scoreImage" alt="scoreImage" style="width: 100%">
+                <div class="card-body">
+                    <h5 class="card-title text-center">{{ score }}점</h5>
+                </div>
+            </div>
+        </div>
+
+        <!-- modal buttons -->
+        <div class="d-flex justify-content-center">
+            <button class="btn btn-outline-primary m-3" type="button" data-bs-toggle="modal" data-bs-target="#resultImage">
+                <span><i class="fa-solid fa-image"></i></span>
+            </button>
+            <button class="btn btn-outline-primary m-3" type="button" data-bs-toggle="modal" data-bs-target="#resultGPS">
+                <span><i class="fa-solid fa-map-location-dot"></i></span>
+            </button>
+            <button class="btn btn-outline-primary m-3" type="button" data-bs-toggle="modal" data-bs-target="#resultSensor">
+                <span><i class="fa-solid fa-hill-rockslide"></i></span>
+            </button>
+        </div>
+
+        <!-- Image Modal -->
+        <div class="modal fade" id="resultImage" tabindex="-1" aria-labelledby="resultImageModal" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="resultImageModalTitle">주차 이미지</h5>
+                        <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="ratio ratio-1x1">
+                            <img class="img-responsive img-rounded" src="{{ uri }}" alt="resultImage" style="margin: auto;">
+                        </div>
+                        <div class="mt-3">
+                            <ul style="list-style-type: disc;" id="resultImageList"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GPS Modal -->
+        <div class="modal fade" id="resultGPS" tabindex="-1" aria-labelledby="resultGPS" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="resultGPSTitle">주차 위치</h5>
+                        <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="ratio ratio-4x3">
+                            <div id="map_div" style="width: 100%;"></div>
+                        </div>
+                        <div class="mt-3">
+                            <ul style="list-style-type: disc;" id="resultGPSList"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sensor Modal -->
+        <div class="modal fade" id="resultSensor" tabindex="-1" aria-labelledby="resultMap" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="resultSensorModalTitle">주차 기울기</h5>
+                        <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <ul style="list-style-type: disc;" id="resultSensorList"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src="https://apis.openapi.sk.com/tmap/jsv2?version=1&appKey=l7xx0ffb87c22bdb45ae8facaeeb7958ad36"></script>
+<script type="text/javascript">
+    function makeTmap() {
+        var map;
+        var marker;
+        var lat = {{ lat }};
+        var long = {{ long }};
+        var markerList = {{ markerList|safe }};
+
+        // 1. 지도 그리기
+        map = new Tmapv2.Map("map_div",
+            {
+                center: new Tmapv2.LatLng(lat, long),
+                width: "100%",
+                zoom: 16,
+                zoomControl: true,
+                scrollwheel: true
+            }
+        );
+
+        // 2. 현 위치 마커
+        marker = new Tmapv2.Marker(
+            {
+                position: new Tmapv2.LatLng(lat, long),
+                icon: "{% static 'images/here.png' %}",
+                iconSize: new Tmapv2.Size(30, 30),
+                map: map
+            }
+        );
+
+        // 3. 주차 금지 구역 마커
+        $.each(markerList, function(idx, item) {
+            marker = new Tmapv2.Marker(
+                {
+                    position: new Tmapv2.LatLng(item.latitude, item.longitude),
+                    icon: "{% static 'images/remove.png' %}",
+                    iconSize: new Tmapv2.Size(20, 20),
+                    map: map
+                }
+            );
+        });
+    }
+
+    function removeTmap() {
+        $("#map_div").empty();
+    }
+
+    function showResult() {
+        var score = {{ score }};
+        var cautionList = {{ cautions|safe }};
+        var imageList = cautionList.image;
+        var gpsList = cautionList.gps;
+        var sensorList = cautionList.sensor;
+
+        // 1. score에 따른 이미지
+        if (score > 7) {
+            $("#scoreImage").prop("src", "{% static 'images/good.png'%}");
+        } else if (score > 3) {
+            $("#scoreImage").prop("src", "{% static 'images/neutral.png'%}");
+        } else {
+            $("#scoreImage").prop("src", "{% static 'images/bad.png'%}");
+        }
+
+        // 2. modal에 주차 점수 감점 요인 넣기
+        $.each(imageList, function(idx, item) {
+            $("#resultImageList").append("<li>"+item+"</li>");
+        });
+        $.each(gpsList, function(idx, item) {
+            $("#resultGPSList").append("<li>"+item+"</li>");
+        });
+        $.each(sensorList, function(idx, item) {
+            $("#resultSensorList").append("<li>"+item+"</li>");
+        });
+    }
+
+    $(document).ready(function() {showResult()});
+    $("#resultGPS").on("shown.bs.modal", function() {makeTmap()});
+    $("#resultGPS").on("hidden.bs.modal", function() {removeTmap()});
+</script>
+{% endblock content %}

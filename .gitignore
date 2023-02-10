@@ -1,0 +1,7 @@
+__pycache__
+.idea
+
+apps/backup
+yolo.py
+test.py
+test2.jpg

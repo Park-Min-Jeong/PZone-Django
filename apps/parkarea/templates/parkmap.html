@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}주차 구역{% endblock title %}
+{% block content %}
+<section class="page-section">
+    <div class="container">
+        <div class="ratio ratio-1x1">
+            <div id="map_div"></div>
+        </div>
+        <div class="m-3 p-2" style="text-align: center;">
+            <img src="{% static 'images/footprint.png' %}" style="width: 10%; margin: 3px;">
+            <span id="totalDistance"></span>
+            <span style="margin: 10px;"></span>
+            <img src="{% static 'images/clock.png' %}" style="width: 10%; margin: 3px;">
+            <span id="totalTime"></span>
+        </div>
+    </div>
+</section>
+
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src="https://apis.openapi.sk.com/tmap/jsv2?version=1&appKey=l7xx0ffb87c22bdb45ae8facaeeb7958ad36"></script>
+<script type="text/javascript">
+    var nearest = {{ nearest|safe }};
+    var resultData = nearest.features;
+
+    function initTmap() {
+        var polylineList = [];
+
+        var map = new Tmapv2.Map("map_div",
+            {
+                center: new Tmapv2.LatLng(resultData[0].geometry.coordinates[1], resultData[0].geometry.coordinates[0]),
+                width: "100%",
+                zoom: 15,
+                zoomControl: true,
+                scrollwheel: true
+            }
+        );
+
+        var tDistance = "총 거리 : "
+                + ((resultData[0].properties.totalDistance) / 1000)
+                        .toFixed(1) + "km,";
+        var tTime = "예상 소요 시간 : "
+                + ((resultData[0].properties.totalTime) / 60)
+                        .toFixed(0) + "분";
+
+        $("#totalTime").text(((resultData[0].properties.totalTime)/60).toFixed(0)+"분");
+        $("#totalDistance").text(((resultData[0].properties.totalDistance)/1000).toFixed(1)+"km");
+
+        $.each(resultData, function(i, result) {
+            var geometry = result.geometry;
+            var properties = result.properties;
+
+            if (geometry.type == "LineString") {
+                $.each(geometry.coordinates, function(j, coor) {
+                    polylineList.push(new Tmapv2.LatLng(coor[1], coor[0]));
+                });
+            } else {
+                var markerImage = "";
+                var size;
+
+                if (properties.pointType == "SP") {
+                    markerImage = "{% static 'images/here.png' %}";
+                    size = new Tmapv2.Size(30, 30);
+                } else if (properties.pointType == "EP") {
+                    markerImage = "{% static 'images/kick-scooter.png' %}";
+                    size = new Tmapv2.Size(30, 30);
+                } else {
+                    markerImage = "{% static 'images/point.png' %}";
+                    size = new Tmapv2.Size(8, 8);
+                }
+
+                var marker = new Tmapv2.Marker(
+                    {
+                        position: new Tmapv2.LatLng(geometry.coordinates[1], geometry.coordinates[0]),
+                        icon: markerImage,
+                        iconSize: size,
+                        map: map
+                    }
+                );
+            }
+        });
+
+        var polyline = new Tmapv2.Polyline(
+            {
+                path: polylineList,
+                strokeColor: "#0047AB",
+                strokeWeight: 6,
+                map: map
+            }
+        );
+    }
+
+    $(document).ready(initTmap());
+</script>
+{% endblock content%}
