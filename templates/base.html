@@ -39,10 +39,35 @@
                 color: #abc2e8;
                 font-size: 2rem;
             }
-            {% block styles %}{% endblock styles %}
-        </style>
+        @font-face{
+            font-family: 'NanumSquareR';
+            src: local('NanumSqureR'),
+            url("{% static 'fonts/NanumSquareR.otf' %}") format("opentype");
+        }
+        @font-face{
+            font-family: 'NanumSquareEB';
+            src: local('NanumSqureEB'),
+            url("{% static 'fonts/NanumSquareEB.otf' %}") format("opentype");
+        }
+        @font-face{
+            font-family: 'NanumSquareB';
+            src: local('NanumSqureB'),
+            url("{% static 'fonts/NanumSquareB.otf' %}") format("opentype");
+        }
+        @font-face{
+            font-family: 'NanumSquareR';
+            src: local('NanumSqureR'),
+            url("{% static 'fonts/NanumSquareR.otf' %}") format("opentype");
+        }
+        @font-face{
+            font-family: 'NanumSquareRoundOTFEB';
+            src: local('NanumSquareRoundOTFEB'),
+            url("{% static 'fonts/NanumSquareRoundOTFEB.otf' %}") format("opentype");
+        }
+    {% block styles %}{% endblock styles %}
+    </style>
     </head>
-    <body>
+    <body style="font-family: 'NanumSquareRoundOTFEB';">
         {% include 'includes/navigation.html' %}
 
         {% block content %}{% endblock content %}

@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}홈{% endblock title %}
+{% block title %}
+홈
+{% endblock title %}
 {% block content %}
 <section class="page-section" >
     <div class="container">
@@ -11,13 +13,16 @@
             </div>
         </div>
         {% else %}
+
         <div class="d-flex justify-content-center">
-            <div class="card text-center" style="width: 80%; border: none;">
+            <div class="card text-center" style="width: 80%; ">
                 <h3> {{ request.user.username }}님의 주차 매너 점수</h3>
-                <h3>{{ av_score }}점</h3>
-                <h5></h5>
+                    <meter class="col-3 mt-3 mb-3" style="margin-left: 25rem" min="0" max="100" low="33" high="66" optimum="50" value="{{av_score}}">{{av_score}}</meter>
+                    <span>{{av_score}}점</span>
             </div>
         </div>
+
+
         {% endif %}
         <div class="divider-custom">
             <div class="divider-custom-line"></div>
