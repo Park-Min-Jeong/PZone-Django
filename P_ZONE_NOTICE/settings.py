@@ -176,4 +176,4 @@ CSRF_TRUSTED_ORIGINS = ['https://*.pzone.site',
                         ]
 
 LOGIN_REDIRECT_URL = reverse_lazy('home:home')
-LOGOUT_REDIRECT_URL = reverse_lazy('accountapp:login')
+LOGOUT_REDIRECT_URL = reverse_lazy('home:home')

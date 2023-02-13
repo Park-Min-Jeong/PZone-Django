@@ -1,9 +1,30 @@
 {% load static %}
-<nav class="navbar bg-secondary text-uppercase fixed-bottom">
-    <div class="container position-relative">
-            <a href="{% url 'home:home' %}">
-                <img class="navbar-brand" src="{% static 'assets/img/PZone_logo.png' %}" width="30" height="30">
-                P-ZONE
-            </a>
+<nav class="navbar fixed-bottom" style="box-shadow: 0 -2px 2px -2px #abc2e8;">
+    <div class="container position-relative" style="justify-content: space-evenly;">
+
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link py-3 px-0 px-lg-3 rounded" href="{% url 'accountapp:create' %}" style="color: #abc2e8">회원가입</a></li>
+                <li class="nav-item"><a class="nav-link py-3 px-0 px-lg-3 rounded" href="{% url 'accountapp:login' %}" style="color: #abc2e8">로그인</a></li>
+            </ul>
+        </div>
+        {% if not user.is_authenticated %}
+        <button class="navbar-toggler" type="button"
+                data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="footer-icon"><i class="fa-solid fa-right-to-bracket"></i></span>
+        </button>
+        {% else %}
+        <a href="{% url 'accountapp:logout' %}">
+            <span class="footer-icon"><i class="fa-solid fa-right-from-bracket"></i></span>
+        </a>
+        {% endif %}
+
+        <a href="{% url 'home:home' %}">
+            <span class="footer-icon"><i class="fa-solid fa-house"></i></span>
+        </a>
+
+        <a href="{% url 'home:home' %}">
+            <span class="footer-icon"><i class="fa-solid fa-clipboard-question"></i></span>
+        </a>
     </div>
 </nav>
