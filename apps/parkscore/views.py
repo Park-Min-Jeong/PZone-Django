@@ -111,7 +111,7 @@ def score(request):
             cautions["sensor"] = temp
         round_score= round(score, 1)
         context = {
-            "score": round_score,
+            "score": round_score*10,
             "cautions": cautions,
             "uri": image_result["uri"],
             "lat": lat,
@@ -134,7 +134,7 @@ def update(request):
     user_score = float(row[0][0])
     round_score = float(request.GET.get('score'))
     gap = (user_score - round_score) / 20
-    update_score = round(user_score - gap, 1)
+    update_score = round(user_score - gap, 0)
 
     sql = f"UPDATE `score` SET `av_score`='{update_score}' WHERE  `username`='{request.user.username}';"
     connectDB(sql, foo=True)

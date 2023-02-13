@@ -18,8 +18,36 @@
         <link rel="stylesheet" href="{% static 'css/styles.css' %}">
         <!-- Bootstrap core JS-->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+        <style>
+             @font-face{
+            font-family: 'NanumSquareR';
+            src: local('NanumSqureR'),
+            url("{% static 'fonts/NanumSquareR.otf' %}") format("opentype");
+        }
+        @font-face{
+            font-family: 'NanumSquareEB';
+            src: local('NanumSqureEB'),
+            url("{% static 'fonts/NanumSquareEB.otf' %}") format("opentype");
+        }
+        @font-face{
+            font-family: 'NanumSquareB';
+            src: local('NanumSqureB'),
+            url("{% static 'fonts/NanumSquareB.otf' %}") format("opentype");
+        }
+        @font-face{
+            font-family: 'NanumSquareR';
+            src: local('NanumSqureR'),
+            url("{% static 'fonts/NanumSquareR.otf' %}") format("opentype");
+        }
+        @font-face{
+            font-family: 'NanumSquareRoundOTFEB';
+            src: local('NanumSquareRoundOTFEB'),
+            url("{% static 'fonts/NanumSquareRoundOTFEB.otf' %}") format("opentype");
+        }
+
+        </style>
     </head>
-    <body>
+    <body style="font-family: 'NanumSquareRoundOTFEB';">
         {% include 'includes/navigation.html' %}
 
         {% block content %}{% endblock content %}
