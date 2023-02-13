@@ -1,17 +1,22 @@
 import json
 from collections import Counter
 import requests
+from django.contrib.auth.decorators import login_required
 
 from django.shortcuts import render, redirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
+from django.utils.decorators import method_decorator
 
 from haversine import haversine
 from datetime import datetime
 
 from apps.home.views import index
+# from apps.parkscore.decorators import account_ownership_required
 from apps.utils import connectDB
 
 
+
+@login_required
 def score(request):
     # Request Post일때
     if request.method == 'POST':
@@ -104,9 +109,9 @@ def score(request):
                 if v < 1:
                     temp.append(k)
             cautions["sensor"] = temp
-
+        round_score= round(score, 1)
         context = {
-            "score": round(score, 1),
+            "score": round_score,
             "cautions": cautions,
             "uri": image_result["uri"],
             "lat": lat,
@@ -114,9 +119,24 @@ def score(request):
             "markerList": marker_list,
         }
 
+
         return render(request, 'score.html', context)
 
 
     ## request method가 Get일때
     else:
-        return reverse(index)
+        return redirect('home:home')
+
+@login_required
+def update(request):
+    sql = f"SELECT av_score FROM score WHERE username = '{request.user.username}'"
+    row = connectDB(sql)
+    user_score = float(row[0][0])
+    round_score = float(request.GET.get('score'))
+    gap = (user_score - round_score) / 20
+    update_score = round(user_score - gap, 1)
+
+    sql = f"UPDATE `score` SET `av_score`='{update_score}' WHERE  `username`='{request.user.username}';"
+    connectDB(sql, foo=True)
+
+    return redirect('home:home')

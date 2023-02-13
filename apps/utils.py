@@ -2,7 +2,7 @@ from P_ZONE_NOTICE.settings import MARIADB
 import pymysql
 
 
-def connectDB(query):
+def connectDB(query, foo=False):
     host = MARIADB["default"]["DB_HOST"]
     user = MARIADB["default"]["DB_USER"]
     db = MARIADB["default"]["DB_NAME"]
@@ -12,4 +12,8 @@ def connectDB(query):
     cursor = connect.cursor()
     cursor.execute(query)
 
-    return cursor.fetchall()
+    if foo:
+        connect.commit()
+        return True
+    else:
+        return cursor.fetchall()

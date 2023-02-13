@@ -80,7 +80,15 @@
                 </div>
             </div>
         </div>
+        <div style="text-align: center;">
+            <form action="{% url 'parkscore:update' %}" method="get">
+                {% csrf_token %}
+                <input type="hidden" name="score" value="{{score}}">
+                <input type="submit" class="btn btn-dark rounded-pill col-3 mt-12" value="반납">
+            </form>
+        </div>
     </div>
+
 </section>
 
 <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>

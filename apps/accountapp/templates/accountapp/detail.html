@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+  <div>
+    <div class="pinteresting_500px_div">
+      <p>
+        {{target_user.date_joined}}
+      </p>
+
+      {% if target_user.profile %}
+      <img src="{{ target_user.profile.image.url }}"
+           style="height: 8rem; width: 8rem; border-radius: 10rem; margin-bottom: 2rem;
+      object-fit:cover; " alt="">
+      <h2 style="font-family:'NanumSquareB'">
+        {{target_user.profile.nickname}}
+        {% if target_user == user%}
+        <a  class="material-icons"
+            style="box-shadow:0 0 4px #ccc; padding:.4rem; border-radius:10rem"
+                href="{% url 'profileapp:update' pk=target_user.profile.pk %}">
+        edit
+        </a>
+        {% endif %}
+      </h2>
+      <h5 style="margin-bottom:3rem;">
+      {{ target_user.profile.message }}
+      </h5>
+
+      {% else %}
+      {% if target_user == user%}
+      <a href="{% url 'profileapp:create' %}">
+      <h2 style="font-family:'NanumSquareB'">
+        Create Profile
+      </h2>
+      </a>
+      {% else %}
+      <h4>
+        닉네임 미설정
+      </h4>
+      {% endif %}
+      {% endif %}
+
+      {% if target_user.profile %}
+      <a  class="material-icons"
+            style="box-shadow:0 0 4px #ccc; padding:.4rem; border-radius:10rem"
+                href="{% url 'profileapp:update' pk=target_user.profile.pk %}">
+        settings
+        </a>
+      <a  class="material-icons"
+            style="box-shadow:0 0 4px #fcc; padding:.4rem; border-radius:10rem"
+                href="{% url 'profileapp:update' pk=target_user.profile.pk %}">
+        cancel
+        </a>
+      {% endif %}
+
+
+
+    </div>
+
+  </div>
+  <div>
+    {% include 'snippets/list_fragment.html' with article_list=object_list %}
+  </div>
+
+{% endblock %}

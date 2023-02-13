@@ -4,12 +4,21 @@
 {% block content %}
 <section class="page-section" >
     <div class="container">
+        {% if not user.is_authenticated %}
         <div class="d-flex justify-content-center">
             <div class="card text-center" style="width: 80%; border: none;">
-                <h3> 평균 점수 들어갈 예정</h3>
+                <h3>서비스 이용시 로그인 해 주시기 바랍니다.</h3>
             </div>
         </div>
-
+        {% else %}
+        <div class="d-flex justify-content-center">
+            <div class="card text-center" style="width: 80%; border: none;">
+                <h3> {{ request.user.username }}님의 주차 매너 점수</h3>
+                <h3>{{ av_score }}점</h3>
+                <h5></h5>
+            </div>
+        </div>
+        {% endif %}
         <div class="divider-custom">
             <div class="divider-custom-line"></div>
             <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
@@ -24,7 +33,7 @@
                 <input type="file" accept="image/*;capture=camera" name="Camera"  id="Camera" style="display: none;" required>
                 <button type="button" class="btn btn-primary m-3" id="scoreButton">
                     <img src="{% static 'images/camera.png' %}" class="img-responsive" style="width: 60%">
-                    <p style="font-size: 1rem;">주차 점수</p>
+                    <p style="font-size: 1rem;">반납 확인</p>
                 </button>
                 <div class="row justify-content-center align-items-center">
                     <div class="col-6">

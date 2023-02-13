@@ -14,6 +14,13 @@ from pathlib import Path
 import environ
 import os
 
+from django.urls import reverse_lazy
+import pymysql
+
+
+
+pymysql.install_as_MySQLdb()
+
 env = environ.Env(
     # set casting, default value
     DEBUG=(bool, False)
@@ -49,9 +56,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'bootstrap4',
     "apps.home",
     "apps.parkarea",
     "apps.parkscore",
+    "apps.accountapp",
 ]
 
 MIDDLEWARE = [
@@ -90,8 +99,15 @@ WSGI_APPLICATION = 'P_ZONE_NOTICE.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql', # engine: mysql
+        'NAME' : 'p_zone', # DB Name
+        'USER' : 'admin', # DB User
+        'PASSWORD' : "Wjdgml119!", # Password
+        'HOST': 'pzone-db.cm53ld3fibe2.ap-northeast-1.rds.amazonaws.com', # 생성한 데이터베이스 엔드포인트
+        'PORT': '3306', # 데이터베이스 포트
+        'OPTIONS':{
+            'init_command' : "SET sql_mode='STRICT_TRANS_TABLES'"
+        }
     }
 }
 
@@ -158,3 +174,6 @@ CSRF_TRUSTED_ORIGINS = ['https://*.pzone.site',
                         'https://*.127.0.0.1',
                         'http://*.18.177.143.210'
                         ]
+
+LOGIN_REDIRECT_URL = reverse_lazy('home:home')
+LOGOUT_REDIRECT_URL = reverse_lazy('accountapp:login')
