@@ -42,15 +42,21 @@ def score(request):
         # 1. image
         url = "http://18.177.143.210:8080/file/store/"
         upload = {'file': img}
-        image_result = requests.post(url, files=upload).json()
-        print(image_result["image_score"])
+        image_result = requests.post(url, files=upload).json()  # kickboard, image_distance, uri
+        kickboard = image_result["kickboard"]
+        image_distance = image_result["image_distance"]
+        # kickboard = True
+        # image_distance = {"sidewalk": .3, "crosswalk": .2, "braille_block": 1.5, "bike_lane": .5}
+
 
         # 2. GPS
-        # 전체 개수로 판정
-        # 알고리즘 수정 필요
-        criteria = 200
+        sql = f"""SELECT UNIQUE c.type
+                  FROM cautionzone c"""
+        gps_distance = {key[0]: [100] for key in connectDB(sql)}
+
+        criteria = 100
         marker_list = []
-        gps_class_list = []
+        # gps_class_list = []
         sql = f"""SELECT c.type, c.name, c.latitude, c.longitude
                   FROM cautionzone c
                   WHERE c.dongcode={dongCode}"""
@@ -58,9 +64,9 @@ def score(request):
             latitude, longitude = float(row[2]), float(row[3])
             distance = haversine((lat, long), (latitude, longitude), unit="m")
             if distance < criteria:
-                print(distance)
+                gps_distance[row[0]].append(distance)
                 marker_list.append({"name": row[1], "latitude": latitude, "longitude": longitude})
-                gps_class_list.append(row[0])
+                # gps_class_list.append(row[0])
         # gps_score = (20 - sum(Counter(gps_class_list).values())) / 5
 
 
@@ -80,38 +86,48 @@ def score(request):
         if time_diff.seconds < 10:
             sensor_score["angle"] = 0
         else:
-            sensor_score["angle"] = 2
+            sensor_score["angle"] = 1
 
 
         # 4. final score
-        cautions = dict()
-        score = 0
+        cautions = {"kickboard": 1, "sensor": 1, "image": [], "gps": []}
+        # weights_dict = {"sidewalk": 0.088, "crosswalk": 0.31, "braille_block": 0.146, "bike_lane": 0.072, ## 0 ~ 1.5
+        #                 "bus": 0.13, "taxi": 0.13, "subway": 0.115, "fire": 0.08} # 0 ~ 100
+        weights_dict = {"sidewalk": 0.5, "crosswalk": 1.76, "braille_block": 0.83, "bike_lane": 0.41,  ## 0 ~ 1.5
+                        "bus": 0.8, "taxi": 0.8, "subway": 0.66, "fire": 0.1, "children": 0.1}  # 0 ~ 100
+        message_dict = {"sidewalk": "보도블럭 중앙", "crosswalk": "횡단보도", "braille_block": "점자블럭", "bike_lane": "자전거도로",
+                        "bus": "버스정류장", "taxi": "택시승강장", "subway": "지하철역", "fire": "지상소화전"}
 
-        if image_result["kickboard"] == False:
-            cautions["kickboard"] = "none"
+        score = 100
+
+        if kickboard == False:
+            score = 0
+            cautions["kickboard"] = 0
+        elif sensor_score["angle"] == 0:
+            score = 0
+            cautions["angle"] = 0
         else:
-            # gps
-            cautions["gps"] = list(Counter(gps_class_list).keys())
-            score = score + (20 - sum(Counter(gps_class_list).values())) / 5
+            for key, value in image_distance.items():
+                if value < 1.5:
+                    temp_score = weights_dict[key] * (1.5 - value) * 20 / 3
+                    score = score - temp_score
+                    cautions["image"].append(message_dict[key])
 
-            # image
-            temp = []
-            for k, v in image_result["image_score"].items():
-                score = score + (1 - v)
-                if v > 0:
-                    temp.append(k)
-            cautions["image"] = temp
+            for key, value in gps_distance.items():
+                min_value = min(value)
+                if min_value < 100:
+                    temp_score = weights_dict[key] * (100 - min_value)
+                    score = score - temp_score
+                    cautions["gps"].append(message_dict[key])
 
-            # sensor
-            temp = []
-            for k, v in sensor_score.items():
-                score = score + v
-                if v < 1:
-                    temp.append(k)
-            cautions["sensor"] = temp
-        round_score= round(score, 1)
+        print(score)
+        if score < 0:
+            score = 0
+        round_score = int(score)
+
+
         context = {
-            "score": round_score*10,
+            "score": round_score,
             "cautions": cautions,
             "uri": image_result["uri"],
             "lat": lat,
@@ -119,13 +135,13 @@ def score(request):
             "markerList": marker_list,
         }
 
-
         return render(request, 'score.html', context)
 
 
     ## request method가 Get일때
     else:
         return redirect('home:home')
+
 
 @login_required
 def update(request):

@@ -8,20 +8,22 @@
             <div class="card" style="width: 40%; border: none;">
                 <img class="card-img-top img-responsive p-2" src="" id="scoreImage" alt="scoreImage" style="width: 100%">
                 <div class="card-body">
-                    <h5 class="card-title text-center">{{ score }}점</h5>
+                    <h5 class="card-title text-center scoreText">{{ score }}점</h5>
                 </div>
             </div>
         </div>
 
+        <div class="card bg-primary text-white p-3" id="resultText" style="border: none;"></div>
+
         <!-- modal buttons -->
         <div class="d-flex justify-content-center">
-            <button class="btn btn-outline-primary m-3" type="button" data-bs-toggle="modal" data-bs-target="#resultImage">
+            <button class="btn btn-outline-primary m-3 modal-button" type="button" data-bs-toggle="modal" data-bs-target="#resultImage">
                 <span><i class="fa-solid fa-image"></i></span>
             </button>
-            <button class="btn btn-outline-primary m-3" type="button" data-bs-toggle="modal" data-bs-target="#resultGPS">
+            <button class="btn btn-outline-primary m-3 modal-button" type="button" data-bs-toggle="modal" data-bs-target="#resultGPS">
                 <span><i class="fa-solid fa-map-location-dot"></i></span>
             </button>
-            <button class="btn btn-outline-primary m-3" type="button" data-bs-toggle="modal" data-bs-target="#resultSensor">
+            <button class="btn btn-outline-primary m-3 modal-button" type="button" data-bs-toggle="modal" data-bs-target="#resultSensor">
                 <span><i class="fa-solid fa-hill-rockslide"></i></span>
             </button>
         </div>
@@ -80,11 +82,13 @@
                 </div>
             </div>
         </div>
+
+        <!-- 반납 버튼 -->
         <div style="text-align: center;">
             <form action="{% url 'parkscore:update' %}" method="get">
                 {% csrf_token %}
                 <input type="hidden" name="score" value="{{score}}">
-                <input type="submit" class="btn btn-dark rounded-pill col-3 mt-12" value="반납">
+                <input type="submit" class="btn btn-secondary rounded-pill col-3 mt-12 submit-button" value="반납">
             </form>
         </div>
     </div>
@@ -139,32 +143,56 @@
         $("#map_div").empty();
     }
 
+    function hideModal() {
+        // modal 버튼 숨기기
+        $(".modal-button").css("display", "none");
+        $(".submit-button").css("display", "none");
+    }
+
     function showResult() {
         var score = {{ score }};
         var cautionList = {{ cautions|safe }};
         var imageList = cautionList.image;
         var gpsList = cautionList.gps;
-        var sensorList = cautionList.sensor;
+
 
         // 1. score에 따른 이미지
-        if (score > 7) {
+        if (score > 66) {
             $("#scoreImage").prop("src", "{% static 'images/good.png'%}");
-        } else if (score > 3) {
+        } else if (score > 33) {
             $("#scoreImage").prop("src", "{% static 'images/neutral.png'%}");
         } else {
             $("#scoreImage").prop("src", "{% static 'images/bad.png'%}");
         }
+        console.log(cautionList.kickboard);
 
-        // 2. modal에 주차 점수 감점 요인 넣기
-        $.each(imageList, function(idx, item) {
-            $("#resultImageList").append("<li>"+item+"</li>");
-        });
-        $.each(gpsList, function(idx, item) {
-            $("#resultGPSList").append("<li>"+item+"</li>");
-        });
-        $.each(sensorList, function(idx, item) {
-            $("#resultSensorList").append("<li>"+item+"</li>");
-        });
+
+        if (cautionList.kickboard == 0) {
+            hideModal();
+            $("#resultText").append("사진에 개인형 이동장치를 확인할 수 없습니다");
+        } else if (cautionList.angle == 0) {
+            hideModal();
+            $("#resultText").append("개인형 이동장치가 쓰러져 있습니다");
+        }
+
+        if (imageList.length > 0) {
+            $("#resultText").append("<h4><span><i class='fa-solid fa-circle-check'></i><span>    이미지 속 주차금지구역</h4>");
+            $.each(imageList, function(idx, item) {
+                $("#resultText").append("<li>"+item+"</li>");
+                $("#resultImageList").append("<li>"+item+"</li>");
+            });
+        }
+
+        if (gpsList.length > 0) {
+            if ($("#resultText > h4").length) {
+                $("#resultText").append("<hr>");
+            }
+            $("#resultText").append("<h4><span><i class='fa-solid fa-circle-check'></i><span>    현 위치 인근 주차금지구역</h4>");
+            $.each(gpsList, function(idx, item) {
+                $("#resultText").append("<li>"+item+"</li>");
+                $("#resultGPSList").append("<li>"+item+"</li>");
+            });
+        }
     }
 
     $(document).ready(function() {showResult()});

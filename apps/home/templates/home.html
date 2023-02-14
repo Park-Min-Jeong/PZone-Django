@@ -9,16 +9,29 @@
         {% if not user.is_authenticated %}
         <div class="d-flex justify-content-center">
             <div class="card text-center" style="width: 80%; border: none;">
-                <h3>서비스 이용시 로그인 해 주시기 바랍니다.</h3>
+                <h3>서비스 이용 시<br>로그인 해주시기 바랍니다</h3>
             </div>
         </div>
-        {% else %}
 
+        {% else %}
         <div class="d-flex justify-content-center">
-            <div class="card text-center" style="width: 80%; ">
-                <h3> {{ request.user.username }}님의 주차 매너 점수</h3>
-                    <meter class="col-3 mt-3 mb-3" style="margin-left: 25rem" min="0" max="100" low="33" high="66" optimum="50" value="{{av_score}}">{{av_score}}</meter>
-                    <span>{{av_score}}점</span>
+            <div class="card text-center border-primary m-4 px-2 py-3" style="width: 100%;">
+                <div class="row align-items-center justify-content-center mb-3">
+
+                    <div class="col-7">
+                        <h3>{{ request.user.username }}님</h3>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-8">
+                        <div class="progress">
+                    <div class="progress-bar" id="userProgressBar" role="progressbar" style="width: {{av_score}}%" aria-valuenow="{{av_score}}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                    </div>
+                    <div class="col-4">
+                        <span>{{av_score}}/100</span>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -37,7 +50,7 @@
                 <input type="hidden" name="long" id="long1">
                 <input type="file" accept="image/*;capture=camera" name="Camera"  id="Camera" style="display: none;" required>
                 <button type="button" class="btn btn-primary m-3" id="scoreButton">
-                    <img src="{% static 'images/camera.png' %}" class="img-responsive" style="width: 60%">
+                    <img src="{% static 'images/electric-scooter.png' %}" class="img-responsive" style="width: 60%">
                     <p style="font-size: 1rem;">반납 확인</p>
                 </button>
                 <div class="row justify-content-center align-items-center">
@@ -91,17 +104,15 @@
         }
 
     function showResult() {
-        var score = 5.4;
+        var score = {{ av_score }};
         // 1. score에 따른 이미지
-        if (score > 7) {
-            $("#scoreImage").prop("src", "{% static 'images/good.png'%}");
-        } else if (score > 3) {
-            $("#scoreImage").prop("src", "{% static 'images/neutral.png'%}");
+        if (score > 66) {
+            $("#userProgressBar").addClass("bg-success");
+        } else if (score > 33) {
+            $("#userProgressBar").addClass("bg-warning");
         } else {
-            $("#scoreImage").prop("src", "{% static 'images/bad.png'%}");
+            $("#userProgressBar").addClass("bg-danger");
         }
-
-        $("#avgScore").text = score;
     }
 
     $(document).ready(function () {
