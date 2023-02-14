@@ -40,7 +40,7 @@ def score(request):
 
 
         # 1. image
-        url = "http://18.177.143.210:8080/file/store/"
+        url = "http://test-fastmodel:8080/file/store/"
         upload = {'file': img}
         image_result = requests.post(url, files=upload).json()  # kickboard, image_distance, uri
         kickboard = image_result["kickboard"]
