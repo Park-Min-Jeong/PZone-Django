@@ -1,5 +1,11 @@
 {% load static %}
-<nav class="navbar fixed-bottom" style="box-shadow: 0 -2px 2px -2px #abc2e8;">
+<style>
+    span.footer-icon {
+        color: var(-bs-primary);
+        font-size: 2rem;
+    }
+</style>
+<nav class="navbar bg-white fixed-bottom" style="box-shadow: 0 -2px 2px -2px var(--bs-primary);">
     <div class="container position-relative" style="justify-content: space-evenly;">
 
         <div class="collapse navbar-collapse" id="navbarResponsive">
@@ -11,7 +17,7 @@
         {% if not user.is_authenticated %}
         <button class="navbar-toggler" type="button"
                 data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="footer-icon"><i class="fa-solid fa-right-to-bracket"></i></span>
+            <span class="footer-icon" style="color: var(--bs-primary)"><i class="fa-solid fa-right-to-bracket"></i></span>
         </button>
         {% else %}
         <a href="{% url 'accountapp:logout' %}">

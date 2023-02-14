@@ -14,6 +14,10 @@
         <!-- Google fonts-->
         <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
         <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+        <!-- Nanum fonts -->
+        <link href="https://hangeul.pstatic.net/hangeul_static/css/nanum-square.css" rel="stylesheet" type="text/css">
+        <link href="https://hangeul.pstatic.net/hangeul_static/css/nanum-square-round.css" rel="stylesheet">
+        <link href="https://hangeul.pstatic.net/hangeul_static/css/nanum-gothic-coding.css" rel="stylesheet" type="text/css">
 
         <!-- Core theme CSS (includes Bootstrap)-->
         <link rel="stylesheet" href="{% static 'css/styles.css' %}">
@@ -21,57 +25,10 @@
         <!-- Bootstrap core JS-->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
         <style>
-            .btn-primary {
-                background-color: #abc2e8;
-                border-color: #abc2e8;
-            }
-            .btn-secondary {
-                background-color: #d1eaa3;
-                border-color: #d1eaa3;
-            }
-            .bg-primary {
-                background-color: #abc2e8 !important;
-            }
-            .bg-secondary {
-                background-color: #d1eaa3 !important;
-            }
-            .footer-icon {
-                color: #abc2e8;
-                font-size: 2rem;
-            }
-        @font-face{
-            font-family: 'NanumSquareR';
-            src: local('NanumSqureR'),
-            url("{% static 'fonts/NanumSquareR.otf' %}") format("opentype");
-        }
-        @font-face{
-            font-family: 'NanumSquareEB';
-            src: local('NanumSqureEB'),
-            url("{% static 'fonts/NanumSquareEB.otf' %}") format("opentype");
-        }
-        @font-face{
-            font-family: 'NanumSquareB';
-            src: local('NanumSqureB'),
-            url("{% static 'fonts/NanumSquareB.otf' %}") format("opentype");
-        }
-        @font-face{
-            font-family: 'NanumSquareR';
-            src: local('NanumSqureR'),
-            url("{% static 'fonts/NanumSquareR.otf' %}") format("opentype");
-        }
-        @font-face{
-            font-family: 'NanumSquareRoundOTFEB';
-            src: local('NanumSquareRoundOTFEB'),
-            url("{% static 'fonts/NanumSquareRoundOTFEB.otf' %}") format("opentype");
-        }
-    {% block styles %}{% endblock styles %}
-    </style>
+            {% block styles %}{% endblock styles %}
+        </style>
     </head>
-    <body style="font-family: 'NanumSquareRoundOTFEB';">
         {% include 'includes/navigation.html' %}
-
-        {% block content %}{% endblock content %}
-
         {% include 'includes/footer.html' %}
-    </body>
+        {% block content %}{% endblock content %}
 </html>
