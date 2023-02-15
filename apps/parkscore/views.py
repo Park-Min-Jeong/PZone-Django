@@ -13,8 +13,6 @@ from apps.home.views import index
 # from apps.parkscore.decorators import account_ownership_required
 from apps.utils import connectDB, whether_gangnam
 
-from apps.test import *
-
 
 @login_required
 def score(request):
