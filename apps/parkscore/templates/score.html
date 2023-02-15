@@ -15,19 +15,6 @@
 
         <div class="card bg-primary text-white p-3" id="resultText" style="border: none;"></div>
 
-        <!-- modal buttons -->
-        <div class="d-flex justify-content-center">
-            <button class="btn btn-outline-primary m-3 modal-button" type="button" data-bs-toggle="modal" data-bs-target="#resultImage">
-                <span><i class="fa-solid fa-image"></i></span>
-            </button>
-            <button class="btn btn-outline-primary m-3 modal-button" type="button" data-bs-toggle="modal" data-bs-target="#resultGPS">
-                <span><i class="fa-solid fa-map-location-dot"></i></span>
-            </button>
-            <button class="btn btn-outline-primary m-3 modal-button" type="button" data-bs-toggle="modal" data-bs-target="#resultSensor">
-                <span><i class="fa-solid fa-hill-rockslide"></i></span>
-            </button>
-        </div>
-
         <!-- Image Modal -->
         <div class="modal fade" id="resultImage" tabindex="-1" aria-labelledby="resultImageModal" aria-hidden="true">
             <div class="modal-dialog">
@@ -68,27 +55,12 @@
             </div>
         </div>
 
-        <!-- Sensor Modal -->
-        <div class="modal fade" id="resultSensor" tabindex="-1" aria-labelledby="resultMap" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="resultSensorModalTitle">주차 기울기</h5>
-                        <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <ul style="list-style-type: disc;" id="resultSensorList"></ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- 반납 버튼 -->
         <div style="text-align: center;">
             <form action="{% url 'parkscore:update' %}" method="get">
                 {% csrf_token %}
                 <input type="hidden" name="score" value="{{score}}">
-                <input type="submit" class="btn btn-secondary rounded-pill col-3 mt-12 submit-button" value="반납">
+                <input type="submit" class="btn btn-secondary rounded-pill col-3 mt-12 submit-button m-3" value="반납">
             </form>
         </div>
     </div>
@@ -172,15 +144,16 @@
             $("#resultText").append("사진에 개인형 이동장치를 확인할 수 없습니다");
         } else if (cautionList.angle == 0) {
             hideModal();
-            $("#resultText").append("개인형 이동장치가 쓰러져 있습니다");
+            $("#resultText").append("개인형 이동장치가 넘어져 있습니다");
         }
 
         if (imageList.length > 0) {
-            $("#resultText").append("<h4><span><i class='fa-solid fa-circle-check'></i><span>    이미지 속 주차금지구역</h4>");
+            $("#resultText").append("<h4><span><i class='fa-solid fa-circle-check'></i></span>    이미지 속 주차금지구역</h4>");
+            $("#resultText").append("<div class='row'><div class='col-9' id='resultImageText'></div><div class='col-3' id='resultImageButton'></div>");
             $.each(imageList, function(idx, item) {
-                $("#resultText").append("<li>"+item+"</li>");
-                $("#resultImageList").append("<li>"+item+"</li>");
+                $("#resultImageText").append("<li>"+item+"</li>");
             });
+            $("#resultImageButton").append('<button class="btn btn-secondary m-3 modal-button" type="button" data-bs-toggle="modal" data-bs-target="#resultImage"><span><i class="fa-solid fa-image"></i></span></button>')
         }
 
         if (gpsList.length > 0) {
@@ -188,10 +161,11 @@
                 $("#resultText").append("<hr>");
             }
             $("#resultText").append("<h4><span><i class='fa-solid fa-circle-check'></i><span>    현 위치 인근 주차금지구역</h4>");
+            $("#resultText").append("<div class='row'><div class='col-9' id='resultGPSText'></div><div class='col-3' id='resultGPSButton'></div>");
             $.each(gpsList, function(idx, item) {
-                $("#resultText").append("<li>"+item+"</li>");
-                $("#resultGPSList").append("<li>"+item+"</li>");
+                $("#resultGPSText").append("<li>"+item+"</li>");
             });
+            $("#resultGPSButton").append('<button class="btn btn-secondary m-3 modal-button" type="button" data-bs-toggle="modal" data-bs-target="#resultGPS"><span><i class="fa-solid fa-map-location-dot"></i></span></button>')
         }
     }
 

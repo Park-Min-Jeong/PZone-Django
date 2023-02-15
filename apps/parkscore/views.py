@@ -1,5 +1,4 @@
 import json
-from collections import Counter
 import requests
 from django.contrib.auth.decorators import login_required
 
@@ -12,35 +11,43 @@ from datetime import datetime
 
 from apps.home.views import index
 # from apps.parkscore.decorators import account_ownership_required
-from apps.utils import connectDB
+from apps.utils import connectDB, whether_gangnam
 
+from apps.test import *
 
 
 @login_required
 def score(request):
     # Request Post일때
     if request.method == 'POST':
-        long = float(request.POST.get('long'))
-        lat = float(request.POST.get('lat'))
+        try:
+            long = float(request.POST.get('long'))
+            lat = float(request.POST.get('lat'))
+        except:
+            return redirect("home:nogps")
+
         img = request.FILES['Camera']
-        print(lat, long)
 
         # 0. 강남구인지 확인
-        dong_list = [row[0] for row in connectDB("SELECT dongcode FROM dong")]
-        API = "https://apis.openapi.sk.com/tmap/geo/reversegeocoding?version=1"
-        payload = {"appKey": "l7xx0ffb87c22bdb45ae8facaeeb7958ad36", "lon": long, "lat": lat}  # appkey secret 설정 필요
-        res = requests.get(API, params=payload)
-        dongCode = int(json.loads(res.text)["addressInfo"]["legalDongCode"][5:8])
-        if dongCode not in dong_list:
-            print("여기는 강남구가 아님")
-        else:
-            print("여기는 강남구")
+        whether, dongCode = whether_gangnam(lat, long)
+        if whether:
             print(dongCode)
+        else:
+            return redirect("home:notgangnam")
+        # dong_list = [row[0] for row in connectDB("SELECT dongcode FROM dong")]
+        # API = "https://apis.openapi.sk.com/tmap/geo/reversegeocoding?version=1"
+        # payload = {"appKey": "l7xx0ffb87c22bdb45ae8facaeeb7958ad36", "lon": long, "lat": lat}  # appkey secret 설정 필요
+        # res = requests.get(API, params=payload)
+        # dongCode = int(json.loads(res.text)["addressInfo"]["legalDongCode"][5:8])
+        # if dongCode not in dong_list:
+        #     return redirect("home:notgangnam")
+        # else:
+        #     print(dongCode)
         # 강남구가 아니면 다른 페이지로 보내는 작업 추가
 
 
         # 1. image
-        url = "http://test-fastmodel:8080/file/store/"
+        url = "http://18.177.143.210:8080/file/store/"
         upload = {'file': img}
         image_result = requests.post(url, files=upload).json()  # kickboard, image_distance, uri
         kickboard = image_result["kickboard"]
@@ -91,10 +98,9 @@ def score(request):
 
         # 4. final score
         cautions = {"kickboard": 1, "sensor": 1, "image": [], "gps": []}
-        # weights_dict = {"sidewalk": 0.088, "crosswalk": 0.31, "braille_block": 0.146, "bike_lane": 0.072, ## 0 ~ 1.5
-        #                 "bus": 0.13, "taxi": 0.13, "subway": 0.115, "fire": 0.08} # 0 ~ 100
-        weights_dict = {"sidewalk": 0.5, "crosswalk": 1.76, "braille_block": 0.83, "bike_lane": 0.41,  ## 0 ~ 1.5
-                        "bus": 0.8, "taxi": 0.8, "subway": 0.66, "fire": 0.1, "children": 0.1}  # 0 ~ 100
+
+        weights_dict = {"sidewalk": 5, "crosswalk": 17.6, "braille_block": 8.3, "bike_lane": 4.1,  ## 0 ~ 1.5
+                        "bus": 8, "taxi": 8, "subway": 6.6, "fire": 0.1, "children": 1.4}  # 0 ~ 100
         message_dict = {"sidewalk": "보도블럭 중앙", "crosswalk": "횡단보도", "braille_block": "점자블럭", "bike_lane": "자전거도로",
                         "bus": "버스정류장", "taxi": "택시승강장", "subway": "지하철역", "fire": "지상소화전"}
 
@@ -109,14 +115,15 @@ def score(request):
         else:
             for key, value in image_distance.items():
                 if value < 1.5:
+                    print(value)
                     temp_score = weights_dict[key] * (1.5 - value) * 20 / 3
                     score = score - temp_score
                     cautions["image"].append(message_dict[key])
-
+            print(score)
             for key, value in gps_distance.items():
                 min_value = min(value)
                 if min_value < 100:
-                    temp_score = weights_dict[key] * (100 - min_value)
+                    temp_score = weights_dict[key] * (100 - min_value) / 10
                     score = score - temp_score
                     cautions["gps"].append(message_dict[key])
 

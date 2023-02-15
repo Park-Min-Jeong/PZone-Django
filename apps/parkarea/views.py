@@ -1,14 +1,23 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 import requests
 import json
 import time
-from apps.utils import connectDB
+from apps.utils import connectDB, whether_gangnam
 
 
 def parkmap(request):
     # 현재 위치
-    longitude = float(request.GET.get('long'))
-    latitude = float(request.GET.get('lat'))
+    try:
+        longitude = float(request.GET.get('long'))
+        latitude = float(request.GET.get('lat'))
+    except:
+        return redirect("home:nogps")
+
+    whether, dongCode = whether_gangnam(latitude, longitude)
+    if whether:
+        print(dongCode)
+    else:
+        return redirect("home:notgangnam")
 
     sql = """SELECT p.type, p.name, p.latitude, p.longitude
              FROM parkingzone p"""

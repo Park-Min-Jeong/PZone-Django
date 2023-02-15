@@ -10,7 +10,7 @@ def index(request):
            context = {"av_score": int(row[0][0])}
            return render(request, 'home.html', context)
        else:
-           sql=f"INSERT INTO `score` (`username`, `av_score`) VALUES ('{request.user.username}', '5.0');"
+           sql=f"INSERT INTO `score` (`username`, `av_score`) VALUES ('{request.user.username}', '50');"
            connectDB(sql, foo=True)
            sql = f"SELECT av_score FROM score WHERE username = '{request.user.username}'"
            row = connectDB(sql)
@@ -21,3 +21,12 @@ def index(request):
         context={}
         return render(request, 'home.html', context)
 
+
+def noGPS(request):
+    context = {}
+    return render(request, "nogps.html", context)
+
+
+def notGangNam(request):
+    context = {}
+    return render(request, "notgangnam.html", context)

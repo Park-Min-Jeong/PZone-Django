@@ -173,7 +173,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 CSRF_TRUSTED_ORIGINS = ['https://*.pzone.site',
                         'https://*.127.0.0.1',
                         'http://*.18.177.143.210',
-                        'http://*.192.168.86.53'
                         ]
 
 LOGIN_REDIRECT_URL = reverse_lazy('home:home')

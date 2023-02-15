@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}error{% endblock title %}
+{% block content %}
+<section class="page-section">
+    <div class="container">
+            <div class="d-flex justify-content-center">
+                <div class="card" style="width: 40%; border: none;">
+                    <img class="card-img-top img-responsive p-2" src="{% static 'images/warning.png' %}" id="warningImage" alt="warningImage" style="width: 100%">
+                </div>
+            </div>
+            <div class="card bg-primary text-white text-center p-3 m-3" style="border: none;">
+                <h3>GPS를 확인하세요</h3>
+            </div>
+        </div>
+</section>
+{% endblock content %}
