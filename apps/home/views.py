@@ -30,3 +30,8 @@ def noGPS(request):
 def notGangNam(request):
     context = {}
     return render(request, "notgangnam.html", context)
+
+
+def angle(request):
+    context = {}
+    return render(request, "angle.html", context)

@@ -47,7 +47,7 @@ def score(request):
 
 
         # 1. image
-        url = "http://18.177.143.210:8080/file/store/"
+        url = "http://test2-model-svc:8000/file/store/"
         upload = {'file': img}
         image_result = requests.post(url, files=upload).json()  # kickboard, image_distance, uri
         kickboard = image_result["kickboard"]
@@ -80,7 +80,7 @@ def score(request):
         # 3. 기울기 sensor
         sensor_score = dict()
 
-        slope_sensor_id = "ea2b62"
+        slope_sensor_id = "ea2c64"
         sql = f"""SELECT i.time, i.inc
                   FROM inclination i
                   WHERE i.sen_id='{slope_sensor_id}'
@@ -88,12 +88,14 @@ def score(request):
 
         # now = datetime.utcnow()
         sensor_data = connectDB(sql)[0]
+        print(sensor_data)
         time_diff = datetime.utcnow() - datetime.strptime(sensor_data[0], "%Y-%m-%d %H:%M:%S")
 
         if time_diff.seconds < 10:
             sensor_score["angle"] = 0
         else:
             sensor_score["angle"] = 1
+        print(time_diff.seconds)
 
 
         # 4. final score
@@ -115,11 +117,9 @@ def score(request):
         else:
             for key, value in image_distance.items():
                 if value < 1.5:
-                    print(value)
                     temp_score = weights_dict[key] * (1.5 - value) * 20 / 3
                     score = score - temp_score
                     cautions["image"].append(message_dict[key])
-            print(score)
             for key, value in gps_distance.items():
                 min_value = min(value)
                 if min_value < 100:
@@ -127,7 +127,6 @@ def score(request):
                     score = score - temp_score
                     cautions["gps"].append(message_dict[key])
 
-        print(score)
         if score < 0:
             score = 0
         round_score = int(score)
@@ -152,14 +151,28 @@ def score(request):
 
 @login_required
 def update(request):
-    sql = f"SELECT av_score FROM score WHERE username = '{request.user.username}'"
-    row = connectDB(sql)
-    user_score = float(row[0][0])
-    round_score = float(request.GET.get('score'))
-    gap = (user_score - round_score) / 20
-    update_score = round(user_score - gap, 0)
+    # 3. 기울기 sensor
+    slope_sensor_id = "ea2c64"
+    sql = f"""SELECT i.time, i.inc
+                      FROM inclination i
+                      WHERE i.sen_id='{slope_sensor_id}'
+                      ORDER BY i.`time` DESC LIMIT 1"""
 
-    sql = f"UPDATE `score` SET `av_score`='{update_score}' WHERE  `username`='{request.user.username}';"
-    connectDB(sql, foo=True)
+    # now = datetime.utcnow()
+    sensor_data = connectDB(sql)[0]
+    time_diff = datetime.utcnow() - datetime.strptime(sensor_data[0], "%Y-%m-%d %H:%M:%S")
 
-    return redirect('home:home')
+    if time_diff.seconds < 10:
+        return redirect("home:angle")
+    else:
+        sql = f"SELECT av_score FROM score WHERE username = '{request.user.username}'"
+        row = connectDB(sql)
+        user_score = float(row[0][0])
+        round_score = float(request.GET.get('score'))
+        gap = (user_score - round_score) / 20
+        update_score = round(user_score - gap, 0)
+
+        sql = f"UPDATE `score` SET `av_score`='{update_score}' WHERE  `username`='{request.user.username}';"
+        connectDB(sql, foo=True)
+
+        return redirect('home:home')
